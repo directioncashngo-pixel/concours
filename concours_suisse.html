@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Concours Suisse</title>
+<meta name="theme-color" content="#e63946" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Concours CH" />
+<link rel="manifest" href="concours_manifest.json" />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#fff;--bg2:#f8f8f8;--bg3:#efefef;
+  --text:#111;--text2:#555;--text3:#999;
+  --border:#e0e0e0;--border2:#bbb;
+  --accent:#e63946;--accent-bg:#fdecea;--accent-dark:#b71c2a;
+  --success:#2e7d32;--success-bg:#e8f5e9;
+  --warning:#7a5000;--warning-bg:#fff8e1;
+  --gold:#f59e0b;--gold-bg:#fffbeb;
+  --radius:10px;--radius-sm:6px;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#1a1a1a;--bg2:#242424;--bg3:#2e2e2e;
+    --text:#f0f0f0;--text2:#aaa;--text3:#666;
+    --border:#333;--border2:#555;
+    --accent:#ff6b6b;--accent-bg:#2e1a1a;--accent-dark:#ff8f8f;
+    --success:#66bb6a;--success-bg:#1b2e1b;
+    --warning:#f0c060;--warning-bg:#2e2000;
+    --gold:#fbbf24;--gold-bg:#2a1f00;
+  }
+}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:var(--bg2);color:var(--text);min-height:100vh;padding:0}
+body::before{content:"";display:block;position:fixed;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#e63946,#f59e0b,#e63946);z-index:999}
+
+/* Layout */
+.wrap{max-width:860px;margin:0 auto;padding:16px}
+
+/* Header */
+header{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:8px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:42px;height:42px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.logo-text h1{font-size:17px;font-weight:700;color:var(--text)}
+.logo-text p{font-size:11px;color:var(--text2);margin-top:1px}
+.header-right{display:flex;align-items:center;gap:8px}
+
+/* Nav tabs */
+.nav{display:flex;gap:0;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;margin-bottom:14px}
+.nav-btn{flex:1;padding:10px 8px;font-size:13px;font-weight:500;cursor:pointer;background:transparent;color:var(--text2);border:none;transition:all .15s;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px}
+.nav-btn.active{background:var(--accent);color:#fff}
+.nav-btn:hover:not(.active){background:var(--bg2)}
+
+/* Cards */
+.card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:12px}
+
+/* API Setup */
+.api-card{background:var(--bg);border:1px solid var(--accent);border-radius:var(--radius);padding:16px 18px;margin-bottom:14px}
+.api-card h2{font-size:14px;font-weight:600;margin-bottom:8px}
+.api-row{display:flex;gap:8px;margin-bottom:6px}
+.api-row input{flex:1}
+.api-note{font-size:12px;color:var(--text2);line-height:1.5}
+.api-note a{color:var(--accent)}
+
+/* Account */
+.account-bar{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0}
+.account-info{flex:1;min-width:0}
+.account-name{font-size:14px;font-weight:600}
+.account-sub{font-size:11px;color:var(--text2)}
+.account-stats{display:flex;gap:12px}
+.stat-pill{text-align:center}
+.stat-pill .n{font-size:18px;font-weight:700;color:var(--accent)}
+.stat-pill .l{font-size:10px;color:var(--text3)}
+
+/* Search */
+.search-row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.search-row input{flex:1;min-width:180px}
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:4px}
+.filter-row label{font-size:13px;color:var(--text2);white-space:nowrap}
+
+/* Form elements */
+input,select,textarea{background:var(--bg);color:var(--text);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:8px 12px;font-size:14px;outline:none;transition:border-color .15s;font-family:inherit;width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+button{background:var(--bg);color:var(--text);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:8px 16px;font-size:14px;cursor:pointer;transition:background .15s;font-family:inherit;white-space:nowrap}
+button:hover{background:var(--bg2)}
+button:active{transform:scale(.98)}
+.btn-accent{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600}
+.btn-accent:hover{background:var(--accent-dark);border-color:var(--accent-dark)}
+.btn-sm{padding:5px 12px;font-size:12px}
+.btn-ghost{background:transparent;border-color:transparent;color:var(--text2)}
+.btn-ghost:hover{background:var(--bg2)}
+
+/* Concours cards */
+.concours-list{display:flex;flex-direction:column;gap:12px}
+.concours-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:border-color .15s}
+.concours-card:hover{border-color:var(--border2)}
+.concours-card.saved{border-color:var(--gold)}
+.cc-header{padding:14px 16px;cursor:pointer;display:flex;gap:12px;align-items:flex-start}
+.cc-emoji{font-size:28px;flex-shrink:0;margin-top:2px}
+.cc-info{flex:1;min-width:0}
+.cc-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px;line-height:1.4}
+.cc-meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px}
+.badge-red{background:var(--accent-bg);color:var(--accent)}
+.badge-green{background:var(--success-bg);color:var(--success)}
+.badge-gold{background:var(--gold-bg);color:var(--gold)}
+.badge-grey{background:var(--bg3);color:var(--text2)}
+.cc-date{font-size:11px;color:var(--text3)}
+.cc-actions{display:flex;gap:6px;align-items:center;flex-shrink:0}
+.cc-body{border-top:1px solid var(--border);padding:14px 16px;display:none}
+.cc-body.open{display:block}
+.cc-source{font-size:12px;color:var(--text2);margin-bottom:10px;display:flex;align-items:center;gap:5px}
+.cc-source a{color:var(--accent);word-break:break-all}
+
+/* Q&A */
+.qa-list{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.qa-item{background:var(--bg2);border-radius:var(--radius-sm);padding:12px 14px}
+.qa-q{font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px}
+.qa-a{font-size:13px;color:var(--success);font-weight:500;display:flex;align-items:center;gap:6px}
+.qa-a::before{content:"✓";font-weight:700}
+.qa-hint{font-size:12px;color:var(--text3);margin-top:4px;font-style:italic}
+
+/* Prizes */
+.prizes{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.prize-chip{font-size:12px;background:var(--gold-bg);color:var(--warning);padding:4px 10px;border-radius:20px;border:1px solid var(--gold)}
+
+/* History */
+.history-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.history-item:last-child{border-bottom:none}
+.hi-emoji{font-size:20px;flex-shrink:0}
+.hi-info{flex:1;min-width:0}
+.hi-title{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hi-date{font-size:11px;color:var(--text3);margin-top:2px}
+.hi-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px}
+
+/* Loading */
+.loading{display:flex;flex-direction:column;align-items:center;gap:12px;padding:3rem 1rem}
+.spinner{width:34px;height:34px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:14px;color:var(--text2);text-align:center;line-height:1.6}
+.loading-step{font-size:12px;color:var(--text3)}
+
+/* Empty / Error */
+.empty{text-align:center;padding:2.5rem 1rem}
+.empty-icon{font-size:38px;margin-bottom:10px}
+.empty-text{font-size:14px;color:var(--text2);line-height:1.7}
+.err-box{background:var(--accent-bg);border-radius:var(--radius-sm);padding:12px 16px;font-size:13px;color:var(--accent);line-height:1.5}
+
+/* Profile form */
+.profile-form{display:flex;flex-direction:column;gap:10px}
+.profile-form label{font-size:13px;color:var(--text2);margin-bottom:3px;display:block}
+.form-group{display:flex;flex-direction:column}
+
+.note{font-size:11px;color:var(--text3);margin-top:10px;line-height:1.5}
+.section-title{font-size:15px;font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+
+@media(max-width:500px){.account-stats{gap:8px}.cc-actions{flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- API Setup -->
+  <div class="api-card" id="apiSetup">
+    <h2>🔑 Clé API Anthropic</h2>
+    <div class="api-row">
+      <input type="password" id="apiKey" placeholder="sk-ant-api03-..." style="width:auto;flex:1" />
+      <button class="btn-accent" onclick="saveKey()">Enregistrer</button>
+      <button id="cancelKeyBtn" onclick="cancelKey()" style="display:none">Annuler</button>
+    </div>
+    <p class="api-note">Obtenez votre clé sur <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>. Stockée uniquement dans votre navigateur.</p>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🏆</div>
+      <div class="logo-text">
+        <h1>Concours Suisse</h1>
+        <p>Trouvez et gagnez les concours quiz du moment</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="btn-ghost btn-sm" onclick="showChangeKey()" id="changeKeyBtn" style="display:none">🔑 Clé API</button>
+      <button class="btn-sm" onclick="showTab('profile')" id="profileBtn" style="display:none">👤 Mon compte</button>
+    </div>
+  </header>
+
+  <!-- Account bar -->
+  <div class="account-bar" id="accountBar" style="display:none">
+    <div class="avatar" id="avatarEl">?</div>
+    <div class="account-info">
+      <div class="account-name" id="accountName">Chargement…</div>
+      <div class="account-sub">Membre Concours Suisse</div>
+    </div>
+    <div class="account-stats">
+      <div class="stat-pill"><div class="n" id="statConsulted">0</div><div class="l">Consultés</div></div>
+      <div class="stat-pill"><div class="n" id="statSaved">0</div><div class="l">Sauvegardés</div></div>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <div class="nav" id="mainNav" style="display:none">
+    <button class="nav-btn active" onclick="showTab('search')" id="nav-search">🔍 Recherche</button>
+    <button class="nav-btn" onclick="showTab('saved')" id="nav-saved">⭐ Sauvegardés</button>
+    <button class="nav-btn" onclick="showTab('history')" id="nav-history">📋 Historique</button>
+    <button class="nav-btn" onclick="showTab('profile')" id="nav-profile">👤 Profil</button>
+  </div>
+
+  <!-- TAB: Search -->
+  <div id="tab-search">
+    <!-- Profile setup if no user -->
+    <div id="profileSetup" class="card">
+      <div class="section-title">👤 Créez votre compte</div>
+      <div class="profile-form">
+        <div class="form-group">
+          <label>Votre prénom</label>
+          <input type="text" id="setupName" placeholder="Ex: Marie" />
+        </div>
+        <div class="form-group">
+          <label>Votre email (pour les concours)</label>
+          <input type="email" id="setupEmail" placeholder="marie@exemple.ch" />
+        </div>
+        <div class="form-group">
+          <label>Canton</label>
+          <select id="setupCanton">
+            <option value="">Tous les cantons</option>
+            <option>Vaud</option><option>Genève</option><option>Fribourg</option>
+            <option>Valais</option><option>Neuchâtel</option><option>Jura</option>
+            <option>Berne</option><option>Zurich</option><option>Bâle</option>
+            <option>Lucerne</option><option>Argovie</option><option>Saint-Gall</option>
+          </select>
+        </div>
+        <button class="btn-accent" onclick="createAccount()" style="width:100%;margin-top:4px">Créer mon compte et commencer →</button>
+      </div>
+    </div>
+
+    <!-- Search form (hidden until account created) -->
+    <div id="searchForm" style="display:none">
+      <div class="card">
+        <div class="search-row">
+          <input type="text" id="q" placeholder="Ex: Migros, Radio Chablais, SRF, Coop…" style="width:auto;flex:1" />
+          <button class="btn-accent" onclick="doSearch()">Chercher ↗</button>
+        </div>
+        <div class="filter-row">
+          <label>Thème :</label>
+          <select id="theme" style="width:auto;flex:1">
+            <option value="">Tous les thèmes</option>
+            <option value="culture générale">Culture générale</option>
+            <option value="sport">Sport</option>
+            <option value="musique">Musique</option>
+            <option value="gastronomie">Gastronomie</option>
+            <option value="voyage">Voyage</option>
+            <option value="cinéma">Cinéma</option>
+            <option value="technologie">Technologie</option>
+            <option value="nature">Nature</option>
+          </select>
+          <label>Langue :</label>
+          <select id="langue" style="width:auto">
+            <option value="français">Français</option>
+            <option value="allemand">Allemand</option>
+            <option value="italien">Italien</option>
+          </select>
+        </div>
+      </div>
+      <div id="searchResults">
+        <div class="card">
+          <div class="empty">
+            <div class="empty-icon">🏆</div>
+            <div class="empty-text">Recherchez des concours par organisateur<br>ou laissez vide pour voir tous les concours du moment</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: Saved -->
+  <div id="tab-saved" style="display:none">
+    <div class="card">
+      <div class="section-title">⭐ Concours sauvegardés</div>
+      <div id="savedList"><div class="empty"><div class="empty-icon">⭐</div><div class="empty-text">Aucun concours sauvegardé<br>Cliquez sur ⭐ pour sauvegarder un concours</div></div></div>
+    </div>
+  </div>
+
+  <!-- TAB: History -->
+  <div id="tab-history" style="display:none">
+    <div class="card">
+      <div class="section-title">📋 Historique de consultation</div>
+      <div id="historyList"><div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Aucun historique<br>Les concours consultés apparaissent ici</div></div></div>
+    </div>
+  </div>
+
+  <!-- TAB: Profile -->
+  <div id="tab-profile" style="display:none">
+    <div class="card">
+      <div class="section-title">👤 Mon profil</div>
+      <div class="profile-form">
+        <div class="form-group"><label>Prénom</label><input type="text" id="profileName" /></div>
+        <div class="form-group"><label>Email</label><input type="email" id="profileEmail" /></div>
+        <div class="form-group"><label>Canton</label>
+          <select id="profileCanton">
+            <option value="">Tous les cantons</option>
+            <option>Vaud</option><option>Genève</option><option>Fribourg</option>
+            <option>Valais</option><option>Neuchâtel</option><option>Jura</option>
+            <option>Berne</option><option>Zurich</option><option>Bâle</option>
+            <option>Lucerne</option><option>Argovie</option><option>Saint-Gall</option>
+          </select>
+        </div>
+        <button class="btn-accent" onclick="saveProfile()" style="width:100%">💾 Sauvegarder</button>
+        <button onclick="resetAccount()" style="width:100%;margin-top:6px;color:var(--accent);border-color:var(--accent)">🗑️ Réinitialiser le compte</button>
+      </div>
+    </div>
+    <div class="card" style="margin-top:0">
+      <div class="section-title">🔑 Clé API</div>
+      <button class="btn-accent" onclick="showChangeKey()" style="width:100%">Modifier la clé API</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── Storage ──────────────────────────────────────────────────────────
+function getKey(){return localStorage.getItem('anthropic_key')||''}
+function saveKey(){
+  const k=document.getElementById('apiKey').value.trim();
+  if(!k){alert('Veuillez entrer une clé valide.');return}
+  localStorage.setItem('anthropic_key',k);
+  document.getElementById('apiSetup').style.display='none';
+  document.getElementById('changeKeyBtn').style.display='block';
+  document.getElementById('cancelKeyBtn').style.display='none';
+  document.getElementById('apiKey').value='';
+  init();
+}
+function showChangeKey(){
+  document.getElementById('apiSetup').style.display='block';
+  document.getElementById('cancelKeyBtn').style.display='inline-block';
+  document.getElementById('apiKey').focus();
+  document.getElementById('apiSetup').scrollIntoView({behavior:'smooth'});
+}
+function cancelKey(){
+  document.getElementById('apiSetup').style.display='none';
+  document.getElementById('cancelKeyBtn').style.display='none';
+}
+
+function getUser(){try{return JSON.parse(localStorage.getItem('concours_user')||'null')}catch{return null}}
+function saveUser(u){localStorage.setItem('concours_user',JSON.stringify(u))}
+function getHistory(){try{return JSON.parse(localStorage.getItem('concours_history')||'[]')}catch{return[]}}
+function saveHistory(h){localStorage.setItem('concours_history',JSON.stringify(h.slice(0,50)))}
+function getSaved(){try{return JSON.parse(localStorage.getItem('concours_saved')||'[]')}catch{return[]}}
+function saveSaved(s){localStorage.setItem('concours_saved',JSON.stringify(s))}
+
+// ── Init ─────────────────────────────────────────────────────────────
+function init(){
+  const hasKey=!!getKey();
+  const user=getUser();
+  document.getElementById('apiSetup').style.display=hasKey?'none':'block';
+  document.getElementById('changeKeyBtn').style.display=hasKey?'block':'none';
+  if(!hasKey)return;
+  if(user){
+    showLoggedIn(user);
+  } else {
+    document.getElementById('profileSetup').style.display='block';
+    document.getElementById('searchForm').style.display='none';
+    document.getElementById('mainNav').style.display='none';
+    document.getElementById('accountBar').style.display='none';
+    document.getElementById('profileBtn').style.display='none';
+  }
+}
+
+function showLoggedIn(user){
+  document.getElementById('profileSetup').style.display='none';
+  document.getElementById('searchForm').style.display='block';
+  document.getElementById('mainNav').style.display='flex';
+  document.getElementById('accountBar').style.display='flex';
+  document.getElementById('profileBtn').style.display='block';
+  const initials=user.name?user.name[0].toUpperCase():'?';
+  document.getElementById('avatarEl').textContent=initials;
+  document.getElementById('accountName').textContent=user.name||'Utilisateur';
+  document.getElementById('profileName').value=user.name||'';
+  document.getElementById('profileEmail').value=user.email||'';
+  document.getElementById('profileCanton').value=user.canton||'';
+  updateStats();
+}
+
+function updateStats(){
+  document.getElementById('statConsulted').textContent=getHistory().length;
+  document.getElementById('statSaved').textContent=getSaved().length;
+}
+
+function createAccount(){
+  const name=document.getElementById('setupName').value.trim();
+  const email=document.getElementById('setupEmail').value.trim();
+  const canton=document.getElementById('setupCanton').value;
+  if(!name){alert('Veuillez entrer votre prénom.');return}
+  const user={name,email,canton,created:new Date().toISOString()};
+  saveUser(user);
+  showLoggedIn(user);
+}
+
+function saveProfile(){
+  const user=getUser()||{};
+  user.name=document.getElementById('profileName').value.trim();
+  user.email=document.getElementById('profileEmail').value.trim();
+  user.canton=document.getElementById('profileCanton').value;
+  saveUser(user);
+  showLoggedIn(user);
+  showTab('search');
+  alert('Profil sauvegardé !');
+}
+
+function resetAccount(){
+  if(!confirm('Réinitialiser votre compte et historique ?'))return;
+  localStorage.removeItem('concours_user');
+  localStorage.removeItem('concours_history');
+  localStorage.removeItem('concours_saved');
+  init();
+  showTab('search');
+}
+
+// ── Tabs ─────────────────────────────────────────────────────────────
+function showTab(tab){
+  ['search','saved','history','profile'].forEach(t=>{
+    document.getElementById('tab-'+t).style.display=t===tab?'block':'none';
+    const btn=document.getElementById('nav-'+t);
+    if(btn)btn.classList.toggle('active',t===tab);
+  });
+  if(tab==='saved')renderSaved();
+  if(tab==='history')renderHistory();
+}
+
+// ── Search ────────────────────────────────────────────────────────────
+function parseRobust(raw){
+  // 1. Try to find JSON block
+  const m = raw.match(/\{[\s\S]*\}/);
+  if(!m) throw new Error('Aucun JSON trouvé dans la réponse.');
+  let s = m[0];
+  // 2. Clean common issues
+  s = s
+    .replace(/[ --]/g, ' ') // control chars
+    .replace(/	/g, ' ')           // tabs
+    .replace(/
+/g, '\n')       // CRLF
+    .replace(/
+/g, '\n')         // CR
+    .replace(/,(\s*[}\]])/g, '$1') // trailing commas
+    .replace(/([{,]\s*)(\w+)(\s*:)/g, '$1"$2"$3'); // unquoted keys
+  // 3. First attempt
+  try { return JSON.parse(s); } catch(e1){}
+  // 4. Extract just the concours array
+  const arr = raw.match(/"concours"\s*:\s*(\[\s*\{[\s\S]*?\}\s*\])/);
+  if(arr){
+    try {
+      let as = arr[1]
+        .replace(/,(\s*[}\]])/g,'$1')
+        .replace(/[ --]/g,' ');
+      return {concours: JSON.parse(as)};
+    } catch(e2){}
+  }
+  // 5. Last resort: extract individual objects
+  const objs = [];
+  const objRx = /\{[^{}]*"titre"[^{}]*\}/g;
+  let om;
+  while((om=objRx.exec(raw))!==null){
+    try{ objs.push(JSON.parse(om[0])); }catch(e){}
+  }
+  if(objs.length) return {concours: objs};
+  throw new Error('Impossible de parser la réponse JSON.');
+}
+
+async function doSearch(){
+  const apiKey=getKey();
+  if(!apiKey){alert('Clé API manquante.');showChangeKey();return}
+  const q=document.getElementById('q').value.trim();
+  const theme=document.getElementById('theme').value;
+  const langue=document.getElementById('langue').value;
+  const user=getUser();
+  const canton=user?.canton||'';
+  const themeClause=theme?` Thème : ${theme}.`:'';
+  const cantonClause=canton?` Région préférée : ${canton}.`:'';
+
+  document.getElementById('searchResults').innerHTML=`
+    <div class="card"><div class="loading">
+      <div class="spinner"></div>
+      <div class="loading-text">Recherche des concours quiz en Suisse…</div>
+      <div class="loading-step">Analyse des concours en cours · ${langue}${themeClause}</div>
+    </div></div>`;
+
+  const prompt=`Tu es un expert des concours et jeux-concours en Suisse.${cantonClause}
+Recherche actuellement (avril 2026) les concours quiz en cours en Suisse en ${langue}.
+${q?`Organisateur/mot-clé : "${q}".`:'Tous organisateurs confondus.'}${themeClause}
+
+Réponds UNIQUEMENT avec un JSON valide :
+{
+  "concours": [
+    {
+      "titre": "Nom du concours",
+      "organisateur": "Nom organisateur (radio, TV, magazine, marque...)",
+      "emoji": "emoji représentatif",
+      "theme": "thème principal",
+      "date_fin": "date de fin ou null",
+      "prix": ["lot 1", "lot 2"],
+      "url": "URL du concours ou null",
+      "questions": [
+        {
+          "question": "Texte de la question",
+          "reponse": "Réponse correcte",
+          "hint": "Indice ou explication courte"
+        }
+      ],
+      "nb_questions": 3,
+      "difficulte": "Facile|Moyen|Difficile",
+      "participation": "Comment participer (SMS, web, email...)"
+    }
+  ]
+}
+Genere 6 a 8 concours realistes et varies. IMPORTANT: JSON strictement valide uniquement. Remplace toutes les apostrophes dans les valeurs par un tiret. Pas de virgule apres le dernier element. Pas de caracteres speciaux non echappes.`;
+
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:3000,
+        tools:[{type:'web_search_20250305',name:'web_search'}],
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    if(!resp.ok){const e=await resp.json();throw new Error(e.error?.message||resp.statusText)}
+    const data=await resp.json();
+    const raw=data.content.filter(b=>b.type==='text').map(b=>b.text).join('');
+    // Extraction robuste du JSON
+    const m=raw.match(/\{[\s\S]*\}/);
+    if(!m)throw new Error('Réponse invalide — aucun JSON trouvé.');
+    let jsonStr=m[0]
+      .replace(/[\u0000-\u001F\u007F]/g,' ')  // caractères de contrôle
+      .replace(/,\s*([}\]])/g,'$1')             // virgules trailing
+      .replace(/\'(?=[^']*(?:'[^']*'[^']*)*$)/g,"\'"); // apostrophes
+    const parsed = parseRobust(raw);
+      renderConcours(parsed.concours||[]);
+  }catch(err){
+    document.getElementById('searchResults').innerHTML=`<div class="card"><div class="err-box"><strong>Erreur :</strong> ${err.message}</div></div>`;
+  }
+}
+
+function renderConcours(list){
+  if(!list.length){
+    document.getElementById('searchResults').innerHTML=`<div class="card"><div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">Aucun concours trouvé<br>Essayez un autre mot-clé ou thème</div></div></div>`;
+    return;
+  }
+  const saved=getSaved();
+  const html=`<div class="concours-list">${list.map((c,i)=>{
+    const isSaved=saved.some(s=>s.titre===c.titre);
+    const diff={Facile:'badge-green',Moyen:'badge-gold',Difficile:'badge-red'}[c.difficulte]||'badge-grey';
+    return `<div class="concours-card${isSaved?' saved':''}" id="cc-${i}">
+      <div class="cc-header" onclick="toggleCard(${i},${JSON.stringify(c).replace(/"/g,'&quot;')})">
+        <div class="cc-emoji">${c.emoji||'🏆'}</div>
+        <div class="cc-info">
+          <div class="cc-title">${c.titre}</div>
+          <div class="cc-meta">
+            <span class="badge badge-red">${c.organisateur}</span>
+            <span class="badge ${diff}">${c.difficulte||'?'}</span>
+            <span class="badge badge-grey">${c.theme||''}</span>
+            ${c.date_fin?`<span class="cc-date">Fin : ${c.date_fin}</span>`:''}
+          </div>
+        </div>
+        <div class="cc-actions">
+          <button class="btn-sm" onclick="event.stopPropagation();toggleSave(${i},${JSON.stringify(c).replace(/"/g,'&quot;')})" title="${isSaved?'Retirer':'Sauvegarder'}">${isSaved?'⭐':'☆'}</button>
+          <span style="font-size:11px;color:var(--text3)">▼</span>
+        </div>
+      </div>
+      <div class="cc-body" id="body-${i}">
+        ${c.participation?`<div class="cc-source">📝 <span>${c.participation}</span></div>`:''}
+        ${c.url?`<div class="cc-source">🔗 <a href="${c.url}" target="_blank" rel="noopener">${c.url}</a></div>`:''}
+        ${c.prix&&c.prix.length?`<div class="prizes">${c.prix.map(p=>`<span class="prize-chip">🎁 ${p}</span>`).join('')}</div>`:''}
+        <div class="section-title" style="font-size:13px;margin-bottom:8px">Questions &amp; Réponses</div>
+        <div class="qa-list">
+          ${(c.questions||[]).map(q=>`
+            <div class="qa-item">
+              <div class="qa-q">❓ ${q.question}</div>
+              <div class="qa-a">${q.reponse}</div>
+              ${q.hint?`<div class="qa-hint">${q.hint}</div>`:''}
+            </div>`).join('')}
+        </div>
+        <p class="note">Les réponses sont générées par IA — vérifiez toujours sur le site officiel du concours.</p>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+  document.getElementById('searchResults').innerHTML=html;
+}
+
+function toggleCard(i, c){
+  const body=document.getElementById('body-'+i);
+  const isOpen=body.classList.toggle('open');
+  if(isOpen){
+    // Add to history
+    const h=getHistory();
+    const exists=h.findIndex(x=>x.titre===c.titre);
+    if(exists>=0)h.splice(exists,1);
+    h.unshift({...c,consulted:new Date().toISOString()});
+    saveHistory(h);
+    updateStats();
+  }
+}
+
+function toggleSave(i, c){
+  const saved=getSaved();
+  const idx=saved.findIndex(s=>s.titre===c.titre);
+  if(idx>=0){
+    saved.splice(idx,1);
+  } else {
+    saved.unshift({...c,savedAt:new Date().toISOString()});
+  }
+  saveSaved(saved);
+  updateStats();
+  // Update button
+  const card=document.getElementById('cc-'+i);
+  const btn=card?.querySelector('.cc-actions button');
+  const isSaved=saved.some(s=>s.titre===c.titre);
+  if(btn)btn.textContent=isSaved?'⭐':'☆';
+  if(card)card.classList.toggle('saved',isSaved);
+}
+
+// ── Saved tab ─────────────────────────────────────────────────────────
+function renderSaved(){
+  const saved=getSaved();
+  if(!saved.length){
+    document.getElementById('savedList').innerHTML=`<div class="empty"><div class="empty-icon">⭐</div><div class="empty-text">Aucun concours sauvegardé<br>Cliquez sur ☆ pour sauvegarder</div></div>`;
+    return;
+  }
+  document.getElementById('savedList').innerHTML=`<div class="concours-list">${saved.map((c,i)=>`
+    <div class="concours-card saved">
+      <div class="cc-header" onclick="toggleSavedCard('s${i}',${JSON.stringify(c).replace(/"/g,'&quot;')})">
+        <div class="cc-emoji">${c.emoji||'🏆'}</div>
+        <div class="cc-info">
+          <div class="cc-title">${c.titre}</div>
+          <div class="cc-meta">
+            <span class="badge badge-red">${c.organisateur}</span>
+            <span class="badge badge-gold">Sauvegardé</span>
+          </div>
+        </div>
+        <div class="cc-actions">
+          <button class="btn-sm" onclick="event.stopPropagation();removeSaved(${i})">🗑️</button>
+        </div>
+      </div>
+      <div class="cc-body" id="body-s${i}">
+        ${c.url?`<div class="cc-source">🔗 <a href="${c.url}" target="_blank">${c.url}</a></div>`:''}
+        ${c.prix&&c.prix.length?`<div class="prizes">${c.prix.map(p=>`<span class="prize-chip">🎁 ${p}</span>`).join('')}</div>`:''}
+        <div class="qa-list">${(c.questions||[]).map(q=>`
+          <div class="qa-item">
+            <div class="qa-q">❓ ${q.question}</div>
+            <div class="qa-a">${q.reponse}</div>
+            ${q.hint?`<div class="qa-hint">${q.hint}</div>`:''}
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+function toggleSavedCard(id, c){
+  document.getElementById('body-'+id)?.classList.toggle('open');
+}
+
+function removeSaved(i){
+  const saved=getSaved();
+  saved.splice(i,1);
+  saveSaved(saved);
+  updateStats();
+  renderSaved();
+}
+
+// ── History tab ───────────────────────────────────────────────────────
+function renderHistory(){
+  const h=getHistory();
+  if(!h.length){
+    document.getElementById('historyList').innerHTML=`<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">Aucun historique pour le moment</div></div>`;
+    return;
+  }
+  document.getElementById('historyList').innerHTML=h.map(c=>{
+    const d=new Date(c.consulted);
+    const dateStr=d.toLocaleDateString('fr-CH',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    return `<div class="history-item">
+      <div class="hi-emoji">${c.emoji||'🏆'}</div>
+      <div class="hi-info">
+        <div class="hi-title">${c.titre}</div>
+        <div class="hi-date">${c.organisateur} · ${dateStr}</div>
+      </div>
+      <span class="hi-badge badge badge-grey">${c.difficulte||'?'}</span>
+    </div>`;
+  }).join('');
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────
+window.addEventListener('load', init);
+document.getElementById('q')?.addEventListener('keydown',e=>{if(e.key==='Enter')doSearch()});
+</script>
+</body>
+</html>
