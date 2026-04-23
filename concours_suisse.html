@@ -432,42 +432,41 @@ function showTab(tab){
 
 // ── Search ────────────────────────────────────────────────────────────
 function parseRobust(raw){
-  // 1. Try to find JSON block
-  const m = raw.match(/\{[\s\S]*\}/);
-  if(!m) throw new Error('Aucun JSON trouvé dans la réponse.');
-  let s = m[0];
-  // 2. Clean common issues
-  s = s
-    .replace(/[ --]/g, ' ') // control chars
-    .replace(/	/g, ' ')           // tabs
-    .replace(/
-/g, '\n')       // CRLF
-    .replace(/
-/g, '\n')         // CR
-    .replace(/,(\s*[}\]])/g, '$1') // trailing commas
-    .replace(/([{,]\s*)(\w+)(\s*:)/g, '$1"$2"$3'); // unquoted keys
-  // 3. First attempt
-  try { return JSON.parse(s); } catch(e1){}
-  // 4. Extract just the concours array
-  const arr = raw.match(/"concours"\s*:\s*(\[\s*\{[\s\S]*?\}\s*\])/);
-  if(arr){
-    try {
-      let as = arr[1]
-        .replace(/,(\s*[}\]])/g,'$1')
-        .replace(/[ --]/g,' ');
-      return {concours: JSON.parse(as)};
-    } catch(e2){}
+  // Parse XML format - much more robust than JSON for French text
+  const items = [];
+  const itemRx = /<item>([\s\S]*?)<\/item>/g;
+  let m;
+  while((m = itemRx.exec(raw)) !== null){
+    const block = m[1];
+    const get = (tag) => {
+      const r = new RegExp('<'+tag+'>(.*?)<\/'+tag+'>','s');
+      const mr = r.exec(block);
+      return mr ? mr[1].trim() : '';
+    };
+    const questions = [];
+    for(let i=1;i<=5;i++){
+      const q=get('q'+i), r=get('r'+i), h=get('h'+i);
+      if(q && r) questions.push({question:q, reponse:r, hint:h});
+    }
+    const prixRaw = get('prix');
+    const prix = prixRaw ? prixRaw.split('|').map(p=>p.trim()).filter(Boolean) : [];
+    items.push({
+      titre: get('titre'),
+      organisateur: get('organisateur'),
+      emoji: get('emoji')||'🏆',
+      theme: get('theme'),
+      date_fin: get('date_fin'),
+      difficulte: get('difficulte')||'Moyen',
+      participation: get('participation'),
+      url: get('url'),
+      prix: prix,
+      questions: questions
+    });
   }
-  // 5. Last resort: extract individual objects
-  const objs = [];
-  const objRx = /\{[^{}]*"titre"[^{}]*\}/g;
-  let om;
-  while((om=objRx.exec(raw))!==null){
-    try{ objs.push(JSON.parse(om[0])); }catch(e){}
-  }
-  if(objs.length) return {concours: objs};
-  throw new Error('Impossible de parser la réponse JSON.');
+  if(!items.length) throw new Error('Aucun concours trouve dans la reponse.');
+  return {concours: items};
 }
+
 
 async function doSearch(){
   const apiKey=getKey();
@@ -487,35 +486,30 @@ async function doSearch(){
       <div class="loading-step">Analyse des concours en cours · ${langue}${themeClause}</div>
     </div></div>`;
 
-  const prompt=`Tu es un expert des concours et jeux-concours en Suisse.${cantonClause}
-Recherche actuellement (avril 2026) les concours quiz en cours en Suisse en ${langue}.
-${q?`Organisateur/mot-clé : "${q}".`:'Tous organisateurs confondus.'}${themeClause}
+  const prompt=`Tu es un expert des concours quiz en Suisse.${cantonClause}
+Recherche les concours quiz actifs en Suisse en ${langue} (avril 2026).
+${q?`Organisateur : ${q}.`:'Tous organisateurs.'}${themeClause}
 
-Réponds UNIQUEMENT avec un JSON valide :
-{
-  "concours": [
-    {
-      "titre": "Nom du concours",
-      "organisateur": "Nom organisateur (radio, TV, magazine, marque...)",
-      "emoji": "emoji représentatif",
-      "theme": "thème principal",
-      "date_fin": "date de fin ou null",
-      "prix": ["lot 1", "lot 2"],
-      "url": "URL du concours ou null",
-      "questions": [
-        {
-          "question": "Texte de la question",
-          "reponse": "Réponse correcte",
-          "hint": "Indice ou explication courte"
-        }
-      ],
-      "nb_questions": 3,
-      "difficulte": "Facile|Moyen|Difficile",
-      "participation": "Comment participer (SMS, web, email...)"
-    }
-  ]
-}
-Genere 6 a 8 concours realistes et varies. IMPORTANT: JSON strictement valide uniquement. Remplace toutes les apostrophes dans les valeurs par un tiret. Pas de virgule apres le dernier element. Pas de caracteres speciaux non echappes.`;
+Reponds avec exactement ce format XML, 6 concours, sans apostrophes dans le texte:
+
+<concours>
+<item>
+<titre>Titre sans apostrophe</titre>
+<organisateur>Nom</organisateur>
+<emoji>🏆</emoji>
+<theme>culture</theme>
+<date_fin>31.05.2026</date_fin>
+<difficulte>Facile</difficulte>
+<participation>Sur le site web</participation>
+<url>https://exemple.ch</url>
+<prix>Lot 1|Lot 2</prix>
+<q1>Question 1</q1><r1>Reponse 1</r1><h1>Indice 1</h1>
+<q2>Question 2</q2><r2>Reponse 2</r2><h2>Indice 2</h2>
+<q3>Question 3</q3><r3>Reponse 3</r3><h3>Indice 3</h3>
+</item>
+</concours>
+
+Remplace toutes les apostrophes par un espace. Pas de caracteres speciaux.`;
 
   try{
     const resp=await fetch('https://api.anthropic.com/v1/messages',{
